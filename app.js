@@ -1,38 +1,20 @@
-const express = require('express');
-
+const express = require("express");
 const app = express();
 app.use(express.json());
 
-app.post('/mcp', (req, res) => {
-  res.json({
-    tools: [
-      {
-        name: "hello_tool",
-        description: "Test MCP tool",
-        input_schema: {
-          type: "object",
-          properties: {
-            name: { type: "string" }
-          },
-          required: ["name"]
-        }
-      }
-    ]
-  });
+const tools = [];
+
+app.get("/mcp", (req, res) => {
+  res.json({ name: "mcp-server", version: "1.0.0", tools });
 });
 
-app.post('/tools/hello_tool', (req, res) => {
-  const { name } = req.body;
-  res.json({
-    result: `Hello ${name}, MCP is working`
-  });
-});
-
-app.get('/', (req, res) => {
-  res.send('MCP server is running');
+app.post("/mcp", (req, res) => {
+  const { method, params } = req.body;
+  if (method === "tools/list") {
+    return res.json({ result: { tools } });
+  }
+  res.status(404).json({ error: "Method not found" });
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on ${PORT}`);
-});
+app.listen(PORT, () => console.log(`MCP server running on port ${PORT}`));
